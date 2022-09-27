@@ -38,6 +38,17 @@ namespace Northwind.Persistence.Repositories
                 .SingleOrDefaultAsync();
         }
 
+        public async Task<IEnumerable<Product>> GetProductPaged(int pageIndex, int pageSize, bool trackChanges)
+        {
+            return await FindAll(trackChanges)
+                .OrderBy(p => p.ProductId)
+                .Include(c => c.Category)
+                .Include(s => s.Supplier)
+                .Skip((pageIndex - 1 ) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
         public void Insert(Product product)
         {
             Create(product);

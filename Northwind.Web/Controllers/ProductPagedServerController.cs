@@ -13,19 +13,21 @@ using X.PagedList;
 
 namespace Northwind.Web.Controllers
 {
-    public class ProductsServiceController : Controller
+    public class ProductPagedServerController : Controller
     {
         private readonly IServiceManager _context;
 
-        public ProductsServiceController(IServiceManager context)
+        public ProductPagedServerController(IServiceManager context)
         {
             _context = context;
         }
 
-        // GET: ProductsService
-        public async Task<IActionResult> Index(string searchString, string currentFilter ,int? page)
+        // GET: ProductPagedServerController
+        public async Task<IActionResult> Index(string searchString, string currentFilter,
+             int? page, int? fetchSize)
         {
-            var pageNumber = page ?? 1;
+            var pageIndex = page ?? 1;
+            var pageSize = fetchSize ?? 5;
 
             //keep state searching value
             if (searchString != null)
@@ -39,17 +41,26 @@ namespace Northwind.Web.Controllers
 
             ViewBag.CurrentFilter = searchString;
 
-            var product = await _context.ProductService.GetAllProduct(false);
+            var product = await _context
+                .ProductService.GetProductPaged(pageIndex, pageSize, false);
+
+            var totalRows = product.Count();
 
             if (!String.IsNullOrEmpty(searchString))
             {
                 product = product
                     .Where(p => p.ProductName.ToLower().Contains(searchString.ToLower()));
             }
-            return View(product.ToPagedList(pageNumber,5));
+
+            var productDtoPaged =
+                new StaticPagedList<ProductDto>(product, pageIndex, pageSize - (pageSize-1), totalRows);
+
+            ViewBag.PagedList = new SelectList(new List<int> { 8, 15, 20 });
+
+            return View(productDtoPaged);
         }
 
-        // GET: ProductsService/Details/5
+        // GET: ProductPagedServerController/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -65,7 +76,7 @@ namespace Northwind.Web.Controllers
             return View(product);
         }
 
-        // GET: ProductsService/Create
+        // GET: ProductPagedServerController/Create
         public async Task<IActionResult> Create()
         {
             var allCategory = await _context.CategoryService.GetAllCategory(false);
@@ -75,7 +86,7 @@ namespace Northwind.Web.Controllers
             return View();
         }
 
-        // POST: ProductsService/Create
+        // POST: ProductPagedServerController/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]

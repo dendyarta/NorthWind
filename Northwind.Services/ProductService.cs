@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Product = Northwind.Domain.Models.Product;
 
 namespace Northwind.Services
 {
@@ -41,6 +42,15 @@ namespace Northwind.Services
         {
             var productModel = await _repositoryManager.ProductRepository.GetProductById(productId, trackChanges);
             var productDto = _mapper.Map<ProductDto>(productModel);
+            return productDto;
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetProductPaged(int pageIndex, int pageSize, bool trackChanges)
+        {
+            var productModel = await _repositoryManager
+                .ProductRepository.GetProductPaged(pageIndex,pageSize,trackChanges);
+
+            var productDto = _mapper.Map<IEnumerable<ProductDto>>(productModel);
             return productDto;
         }
 

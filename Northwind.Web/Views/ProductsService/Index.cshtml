@@ -12,7 +12,7 @@
 @using (Html.BeginForm("Index","ProductsService",FormMethod.Get)){
     <div>
         <p>
-            Find By Product Name : @Html.TextBox("SearchString")
+            Find By Product Name : @Html.TextBox("SearchString", ViewBag.CurrentFillet as string)
             <input type="submit" value="Search"/>
         </p>
     </div>
@@ -75,6 +75,7 @@
 }
     </tbody>
 </table>
-@Html.PagedListPager(Model,
-    page => Url.Action("Index", new {page})
+@Html.PagedListPager(
+    Model,
+    page => Url.Action("Index", new {page, CurrentFilter=ViewBag.CurrentFilter})
 )
