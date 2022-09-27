@@ -9,6 +9,7 @@ using Northwind.Contracts.Dto.Product;
 using Northwind.Domain.Models;
 using Northwind.Persistence;
 using Northwind.Services.Abstraction;
+using X.PagedList;
 
 namespace Northwind.Web.Controllers
 {
@@ -22,10 +23,17 @@ namespace Northwind.Web.Controllers
         }
 
         // GET: ProductsService
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, int? page)
         {
+            var pageNumber = page ?? 1;
             var product = await _context.ProductService.GetAllProduct(false);
-            return View(product);
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                product = product
+                    .Where(p => p.ProductName.ToLower().Contains(searchString.ToLower()));
+            }
+            return View(product.ToPagedList(pageNumber,5));
         }
 
         // GET: ProductsService/Details/5
