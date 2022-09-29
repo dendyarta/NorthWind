@@ -22,6 +22,8 @@ namespace Northwind.Web.Controllers
             _context = context;
         }
 
+        
+
         // GET: ProductPagedServerController
         public async Task<IActionResult> Index(string searchString, string currentFilter,
              int? page, int? fetchSize)
@@ -58,6 +60,13 @@ namespace Northwind.Web.Controllers
             ViewBag.PagedList = new SelectList(new List<int> { 8, 15, 20 });
 
             return View(productDtoPaged);
+        }
+
+        // GET : ProductPagedServer
+        [HttpPost]
+        public async Task<IActionResult> CreateProductPhoto(ProductPhotoGroupDto productPhotoDto)
+        {
+            return View();
         }
 
         // GET: ProductPagedServerController/Details/5
