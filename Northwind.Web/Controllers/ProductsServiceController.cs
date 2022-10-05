@@ -78,7 +78,7 @@ namespace Northwind.Web.Controllers
         // POST: ProductsService/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        /*[HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued")] ProductForCreateDto product)
         {
@@ -92,7 +92,7 @@ namespace Northwind.Web.Controllers
             ViewData["CategoryId"] = new SelectList(allCategory, "CategoryId", "CategoryName", product.CategoryId);
             ViewData["SupplierId"] = new SelectList(allSupplier, "SupplierId", "CompanyName", product.SupplierId);
             return View(product);
-        }
+        }*/
 
         // GET: ProductsService/Edit/5
         public async Task<IActionResult> Edit(int? id)

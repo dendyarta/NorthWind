@@ -35,16 +35,14 @@ namespace Northwind.Persistence.Repositories
                 //.Include(s => s.Supplier)
         }
 
-        /*public async Task<IEnumerable<Product>> GetProductPaged(int pageIndex, int pageSize, bool trackChanges)
+        public async Task<IEnumerable<ProductPhoto>> GetProductPaged(int pageIndex, int pageSize, bool trackChanges)
         {
             return await FindAll(trackChanges)
-                .OrderBy(p => p.ProductId)
-                .Include(c => c.Category)
-                .Include(s => s.Supplier)
-                .Skip((pageIndex - 1 ) * pageSize)
+                .OrderBy(p => p.PhotoId)
+                .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-        }*/
+        }
 
         public void Insert(ProductPhoto productPhoto)
         {
@@ -60,6 +58,11 @@ namespace Northwind.Persistence.Repositories
         public void Remove(ProductPhoto productPhoto)
         {
             Delete(productPhoto);
+        }
+
+        public Task<ProductPhoto> GetPhotoByProductId(int productId, bool trackChanges)
+        {
+            throw new NotImplementedException();
         }
     }
 }

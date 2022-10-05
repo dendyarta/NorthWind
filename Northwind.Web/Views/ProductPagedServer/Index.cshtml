@@ -7,36 +7,42 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Product Service Pagination</h1>
+<h1>Product With Pagination</h1>
 
-@using (Html.BeginForm("Index", "ProductsService", FormMethod.Get))
+@using (Html.BeginForm("Index", "ProductPagedServer", FormMethod.Get))
 {
-    <div>
-        <p>
-            Find By Product Name : @Html.TextBox("SearchString", ViewBag.CurrentFillet as string)
-            <input type="submit" value="Search" />
-            PageSize : @Html.DropDownList("FetchSize",
-                ViewBag.PagedList as SelectList,"5",
-                new {
-                    @class="form-select form-select-sm mb-2",
-                    @onchange="getFetchSize(value)"
-                }
-                )
-        </p>
+    <div class="input-group mb-1">
+        @Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new {@class="form-control", placeholder = "Product or Company Name" })
+        @*<input type="submit" value="Search" />*@
+        <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Search</button>
     </div>
 }
 
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<div>
+    Page Size : @Html.DropDownList("PageSize",
+    ViewBag.PagedList as SelectList,
+    new{
+    @placeholder="Page Size",
+    @onchange="getPageSize(this.value)"
+    }
+    )
+</div>
+
 <table class="table">
     <thead>
         <tr>
             <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewBag.ProductNameSort">Sort</a> |
                 @Html.DisplayNameFor(model => model.FirstOrDefault().ProductName)
             </th>
             <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewBag.UnitPriceSort">Sort</a> |
                 @Html.DisplayNameFor(model => model.FirstOrDefault().UnitPrice)
+            </th>
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.FirstOrDefault().UnitsInStock)
@@ -84,12 +90,11 @@
         }
     </tbody>
 </table>
-@Html.PagedListPager(
-    Model,
-    page => Url.Action("Index", new {page,CurrentFilter=ViewBag.CurrentFilter})
-)
+
+@Html.PagedListPager(Model, page => Url.Action("Index", new{page, PageSize = ViewBag.psize, currentFilter = ViewBag.CurrentFilter}))
+
 <script>
-    function getFetchSize(value){
-        document.location.href = "/ProductPagedServer?FetchSize="+value;
+    function getPageSize(value) {
+        document.location.href = "/ProductPagedServer?&PageSize=" + value + "&currentFilter=@ViewBag.CurrentFilter";
     }
 </script>

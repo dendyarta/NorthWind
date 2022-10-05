@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Contracts.Dto.Product;
 using Northwind.Domain.Models;
@@ -16,22 +17,68 @@ namespace Northwind.Web.Controllers
     public class ProductPagedServerController : Controller
     {
         private readonly IServiceManager _context;
+        private readonly IUtilityService _utilityService;
 
-        public ProductPagedServerController(IServiceManager context)
+        public ProductPagedServerController(IServiceManager context, IUtilityService utilityService)
         {
             _context = context;
+            _utilityService = utilityService;
         }
 
-        
+        // GET : ProductPagedServer
+        [HttpPost]
+        public async Task<IActionResult> CreateProductPhoto(ProductPhotoGroupDto productPhotoGroupDto)
+        {
+            if (ModelState.IsValid)
+            {
+                var productPhotoGroup = productPhotoGroupDto;
+                var listPhoto = new List<ProductPhotoForCreateDto>();
+                foreach (var itemPhoto in productPhotoGroup.AllPhoto)
+                {
+                    var fileName = _utilityService.UploadSingleFile(itemPhoto);
+                    var photo = new ProductPhotoForCreateDto
+                    {
+                        PhotoFilename = fileName,
+                        PhotoFileSize = (short?)itemPhoto.Length,
+                        PhotoFileType = itemPhoto.ContentType
+                    };
+                    listPhoto.Add(photo);
+                }
+
+                _context.ProductService.CreateProductManyPhoto(productPhotoGroupDto.ProductForCreateDto, listPhoto);
+
+                /*var photo1 = _utilityService.UploadSingleFile(productPhotoGroup.Photo1);
+                *//*var photo2 = _utilityService.UploadSingleFile(productPhotoGroup.Photo2);
+                var photo3 = _utilityService.UploadSingleFile(productPhotoGroup.Photo3);*/
+            }
+
+            var allCategory = await _context.CategoryService.GetAllCategory(false);
+            var allSupplier = await _context.SupplierService.GetAllSupplier(false);
+            ViewData["CategoryId"] = new SelectList(allCategory, "CategoryId", "CategoryName");
+            ViewData["SupplierId"] = new SelectList(allSupplier, "SupplierId", "CompanyName");
+
+            return View("Create");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditProductPhoto(ProductDto productDto)
+        {
+            var DataBuatDiEdit = productDto;
+
+            return View("Random");
+        }
 
         // GET: ProductPagedServerController
         public async Task<IActionResult> Index(string searchString, string currentFilter,
-             int? page, int? fetchSize)
+        string sortOrder, int? page, int? pageSize)
         {
-            var pageIndex = page ?? 1;
-            var pageSize = fetchSize ?? 5;
+            // set page
+            int pageIndex = 1;
+            pageIndex = page.HasValue ? Convert.ToInt32(page) : 1;
+            // default size is 5 otherwise take pageSize value  
+            int defaSize = (pageSize ?? 5);
+            ViewBag.psize = defaSize;
 
-            //keep state searching value
             if (searchString != null)
             {
                 page = 1;
@@ -40,34 +87,56 @@ namespace Northwind.Web.Controllers
             {
                 searchString = currentFilter;
             }
-
             ViewBag.CurrentFilter = searchString;
 
-            var product = await _context
-                .ProductService.GetProductPaged(pageIndex, pageSize, false);
+            //Create a instance of our DataContext  
+            var products = await _context.ProductService.GetAllProduct(false);
+            IPagedList<ProductDto> productDtos = null;
 
-            var totalRows = product.Count();
-
+            // search page by product name and company name
             if (!String.IsNullOrEmpty(searchString))
             {
-                product = product
-                    .Where(p => p.ProductName.ToLower().Contains(searchString.ToLower()));
+                products = products.Where(p => p.ProductName.ToLower().Contains(searchString.ToLower()) ||
+                p.Supplier.CompanyName.ToLower().Contains(searchString.ToLower()));
             }
 
-            var productDtoPaged =
-                new StaticPagedList<ProductDto>(product, pageIndex, pageSize - (pageSize-1), totalRows);
+            //Dropdownlist code for PageSize selection  
+            //In View Attach this  
+            ViewBag.PageSize = new List<SelectListItem>()
+            {
+                new SelectListItem() { Value="5", Text= "5" },
+                new SelectListItem() { Value="10", Text= "10" },
+                new SelectListItem() { Value="15", Text= "15" },
+                new SelectListItem() { Value="20", Text= "20" }
+            };
 
-            ViewBag.PagedList = new SelectList(new List<int> { 8, 15, 20 });
+            // Sort Data
+            ViewBag.ProductNameSort = String.IsNullOrEmpty(sortOrder) ? "product_name" : "";
+            ViewBag.UnitPriceSort = sortOrder == "price" ? "unit_price" : "price";
 
-            return View(productDtoPaged);
+            switch (sortOrder)
+            {
+                case "product_name":
+                    products = products.OrderByDescending(p => p.ProductName);
+                    break;
+                case "price":
+                    products = products.OrderBy(p => p.UnitPrice);
+                    break;
+                case "unit_price":
+                    products = products.OrderByDescending(p => p.UnitPrice);
+                    break;
+                default:
+                    products = products.OrderBy(p => p.ProductName);
+                    break;
+            }
+
+            //Alloting nos. of records as per pagesize and page index.  
+            productDtos = products.ToPagedList(pageIndex, defaSize);
+
+            return View(productDtos);
         }
 
-        // GET : ProductPagedServer
-        [HttpPost]
-        public async Task<IActionResult> CreateProductPhoto(ProductPhotoGroupDto productPhotoDto)
-        {
-            return View();
-        }
+
 
         // GET: ProductPagedServerController/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -98,7 +167,7 @@ namespace Northwind.Web.Controllers
         // POST: ProductPagedServerController/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        /*[HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ProductName,SupplierId,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued")] ProductForCreateDto product)
         {
@@ -112,7 +181,7 @@ namespace Northwind.Web.Controllers
             ViewData["CategoryId"] = new SelectList(allCategory, "CategoryId", "CategoryName", product.CategoryId);
             ViewData["SupplierId"] = new SelectList(allSupplier, "SupplierId", "CompanyName", product.SupplierId);
             return View(product);
-        }
+        }*/
 
         // GET: ProductsService/Edit/5
         public async Task<IActionResult> Edit(int? id)

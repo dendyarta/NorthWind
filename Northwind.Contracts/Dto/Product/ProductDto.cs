@@ -1,10 +1,13 @@
 ﻿using Northwind.Contracts.Dto.Category;
+using Northwind.Contracts.Dto.OrderDetail;
 using Northwind.Contracts.Dto.Supplier;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Northwind.Contracts.Dto.Product
 {
@@ -22,5 +25,8 @@ namespace Northwind.Contracts.Dto.Product
         public bool Discontinued { get; set; }
         public virtual CategoryDto Category { get; set; }
         public virtual SupplierDto Supplier { get; set; }
+        [Display(Name = "Product Photo")]
+        public virtual ICollection<OrderDetailDto> OrderDetails { get; set; }
+        public virtual ICollection<ProductPhotoDto> ProductPhotos { get; set; }
     }
 }

@@ -123,7 +123,7 @@ namespace Northwind.Test
                 category.Result.Count().ShouldBe(79);
             }
         }
-
+/*
         [Fact]
         public void TestCreateProductService()
         {
@@ -145,7 +145,7 @@ namespace Northwind.Test
                 category.ShouldNotBeNull();
                 category.Result.Count().ShouldBe(82);
             }
-        }
+        }*/
 
         [Fact]
         public void TestEditProductService()

@@ -10,15 +10,10 @@ using System.Threading.Tasks;
 
 namespace Northwind.Persistence.Repositories
 {
-    internal class CategoryRepository : RepositoryBase<Category>, ICategoryRepository
+    public class CategoryRepository : RepositoryBase<Category>, ICategoryRepository
     {
         public CategoryRepository(NorthwindContext dbContext) : base(dbContext)
         {
-        }
-
-        public void Edit(Category category)
-        {
-            Update(category);
         }
 
         public async Task<IEnumerable<Category>> GetAllCategory(bool trackChanges)
@@ -34,6 +29,11 @@ namespace Northwind.Persistence.Repositories
         public void Insert(Category category)
         {
             Create(category);
+        }
+
+        public void Edit(Category category)
+        {
+            Update(category);
         }
 
         public void Remove(Category category)

@@ -1,0 +1,7 @@
+﻿@model IEnumerable<Northwind.Contracts.Dto.Product.ProductDto>
+<h4>Product On Sales</h4>
+
+@foreach (var item in Model)
+{
+    @Html.DisplayFor(modelItem => item.ProductName)
+}

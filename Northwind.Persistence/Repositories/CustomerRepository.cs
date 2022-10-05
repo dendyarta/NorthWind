@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Northwind.Persistence.Repositories
 {
-    internal class CustomerRepository : RepositoryBase<Customer>, ICustomerRepository
+    public class CustomerRepository : RepositoryBase<Customer>, ICustomerRepository
     {
         public CustomerRepository(NorthwindContext dbContext) : base(dbContext)
         {
