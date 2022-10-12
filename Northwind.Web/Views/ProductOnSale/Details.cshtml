@@ -1,0 +1,145 @@
+﻿@model Northwind.Contracts.Dto.Product.ProductDto
+
+
+<h4 style="text-align: center">Product Details</h4>
+@using (Html.BeginForm("CheckoutOrder"
+, "ProductOnSale"
+, FormMethod.Post
+, new { @enctype = "multipart/form-data" }))
+{
+    <div style="display:flex">
+
+        <div class="col-md-6 col-lg-4">
+            <div id="myCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    @foreach (var item in Model.ProductPhotos)
+                    {
+                        if (Model.ProductPhotos.FirstOrDefault() == item)
+                        {
+                            <div class="carousel-item active">
+                                <img class="card-img-top" style="height:300px" src="@Url.Content("~/Resources/Images/"+item.PhotoFilename)" alt="Card image cap">
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="carousel-item">
+                                <img class="card-img-top" style="height:300px" src="@Url.Content("~/Resources/Images/"+item.PhotoFilename)" alt="Card image cap">
+                            </div>
+                        }
+                    }
+                    <button class="carousel-control-prev" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#myCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3" style="width:300px; padding-left:20px">
+            <h5>Product Name</h5>
+            <h5>Product Price</h5>
+            <h5>Category Name</h5>
+            <h5>Unit Stock</h5>
+            @*<h5 style="padding-bottom:13.5px;padding-left:50px;padding-top:10px">Kuantitas</h5>*@
+            <h5>Quantity (between 1 and @Html.DisplayFor(Model => Model.UnitsInStock))</h5>
+            @*<div class="container">
+        <button>+</button>
+        <input value="1" />
+        <button>-</button>
+        </div>*@
+            @*<a asp-action="Create" asp-route-id="@Model.ProductId">
+        <button type="button" class="btn btn-outline-danger">Add To Chart</button>
+        </a>*@
+        </div>
+        <div class="col-md-6 col-lg-1" style="width:20px">
+            <h5>:</h5>
+            <h5>:</h5>
+            <h5>:</h5>
+            <h5>:</h5>
+            <h5>:</h5>
+            <h5 style="padding-top:5px">:</h5>
+        </div>
+        <div class="col-md-6 col-lg-4" style="width:200px">
+            @Html.HiddenFor(Model =>Model.ProductId)
+            <h5>@Html.DisplayFor(Model=>Model.ProductName)</h5>
+            @Html.HiddenFor(Model =>Model.UnitPrice)
+            <h5>@Html.DisplayFor(Model =>Model.UnitPrice)</h5>
+            <h5>@Html.DisplayFor(Model =>Model.Category.CategoryName)</h5>
+            <h5>@Html.DisplayFor(Model =>Model.UnitsInStock)</h5>
+            @*<div class="input-group" style="padding-bottom:20px">
+        <button class="btn btn-outline-danger" onchange="getMinus" id="minus">-</button>
+        <p id="hasil" style="padding-left:10px;padding-right:10px;">0</p>
+        <button class="btn btn-outline-danger" onclick="getPlus('hasil',@Html.DisplayFor(Model =>Model.UnitsInStock))" id="plus">+</button>
+        </div>*@
+            <div>
+                <button type="button" class="btn btn-outline-danger" onchange="getMinus" id="minus">-</button>
+                <input class="input" style="width:40px" id="hasil" name="QuantityPerUnit" asp-route="@Model.QuantityPerUnit" min="1" max="@Model.UnitsInStock">
+                <button type="button" class="btn btn-outline-danger" onclick="getPlus('hasil',@Html.DisplayFor(Model =>Model.UnitsInStock))" id="plus">+</button>
+            </div>
+            <button type="submit" class="btn btn-danger">Buy Now</button>
+
+        </div>
+
+    </div>
+    <a asp-action="Index">Back to List</a>
+
+}
+@*<div class="card-body">
+    @Html.DisplayFor(Model =>Model.UnitPrice)
+            <p class="card-text">
+                <center><b>@Html.DisplayFor(model=>model.ProductName)</b></center>
+            </p>
+            <p class="card-text">
+                @Html.LabelFor(model=>model.UnitPrice) :
+                @Html.DisplayFor(model=>model.UnitPrice)
+                <br>
+                @Html.LabelFor(model => model.UnitsInStock, htmlAttributes : new{@class="form-label"}) :
+                @Html.DisplayFor(model => model.UnitsInStock)
+            </p>
+        </div>*@
+
+<script>
+    function getPlus(a, b) {
+        var minusBtn = document.getElementById("minus"),
+            plusBtn = document.getElementById("plus"),
+            numberPlace = document.getElementById("hasil"),
+            number = 0, /// number value
+            min = 0, /// min number
+            max = b; /// max number
+        for (let i = 0; i < max; i++) {
+            minusBtn.onclick = function () {
+                if (number > min) {
+                    number = number - 1; /// Minus 1 of the number
+                    numberPlace.setAttribute('value', number); /// Display the value in place of the number
+                }
+                if (number == min) {
+                    numberPlace.style.color = "red";
+                    setTimeout(function () { numberPlace.style.color = "black" }, 500)
+                }
+                else {
+                    numberPlace.style.color = "black";
+                }
+
+            }
+            plusBtn.onclick = function () {
+                if (number < max) {
+                    number = number + 1;
+                    numberPlace.setAttribute('value', number);  /// Display the value in place of the number
+                }
+                if (number == max) {
+                    numberPlace.style.color = "red";
+                    setTimeout(function () { numberPlace.style.color = "black" }, 500)
+                }
+
+                else {
+                    numberPlace.style.color = "black";
+
+                }
+            }
+        }
+    }
+</script>

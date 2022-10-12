@@ -27,7 +27,7 @@ namespace Northwind.Contracts.Dto.Product
 
         [Display(Name = "Price")]
         [Required]
-        [Range (10,9999.00)]
+        [Range (10,9999999999.00)]
         public decimal? UnitPrice { get; set; }
 
         [Display(Name = "Units In Stock")]
