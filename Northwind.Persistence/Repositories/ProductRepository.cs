@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Northwind.Domain.Dto;
 using Northwind.Domain.Models;
 using Northwind.Domain.Repositories;
 using Northwind.Persistence.Base;
@@ -31,6 +32,7 @@ namespace Northwind.Persistence.Repositories
             return await FindByCondition(p => p.ProductId.Equals(productId), trackChanges)
                 .Include(c => c.Category)
                 .Include(s => s.Supplier)
+                .Include(x => x.ProductPhotos)
                 .SingleOrDefaultAsync();
         }
 
@@ -79,6 +81,20 @@ namespace Northwind.Persistence.Repositories
         public void Remove(Product product)
         {
             Delete(product);
+        }
+
+        public IEnumerable<TotalProductByCategory> GetTotalProductByCategory(bool trackChanges)
+        {
+            var rawSQL = _dbContext.TotalProductByCategorySQL
+                .FromSqlRaw("select c.CategoryName, count(p.productId) TotalProduct from products p join Categories c on p.CategoryID=c.CategoryID group by c.CategoryName")
+                .Select(x => new TotalProductByCategory
+                {
+                    CategoryName = x.CategoryName,
+                    TotalProduct = x.TotalProduct
+                })
+                .OrderBy(x => x.TotalProduct)
+                .ToList();
+            return rawSQL;
         }
     }
 }

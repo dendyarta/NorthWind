@@ -61,11 +61,25 @@ namespace Northwind.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditProductPhoto(ProductDto productDto)
+        public async Task<IActionResult> EditProductPhoto(int? id)
         {
-            var DataBuatDiEdit = productDto;
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var product = await _context.ProductService.GetProductById((int)id, false);
 
-            return View("Random");
+            var allCategory = await _context.CategoryService.GetAllCategory(false);
+            var allSupplier = await _context.SupplierService.GetAllSupplier(false);
+            ViewData["CategoryId"] = new SelectList(allCategory, "CategoryId", "CategoryName");
+            ViewData["SupplierId"] = new SelectList(allSupplier, "SupplierId", "CompanyName");
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return View("Edit");
         }
 
         // GET: ProductPagedServerController

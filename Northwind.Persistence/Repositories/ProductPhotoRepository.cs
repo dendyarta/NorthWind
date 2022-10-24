@@ -60,9 +60,5 @@ namespace Northwind.Persistence.Repositories
             Delete(productPhoto);
         }
 
-        public Task<ProductPhoto> GetPhotoByProductId(int productId, bool trackChanges)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

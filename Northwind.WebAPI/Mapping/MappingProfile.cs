@@ -5,7 +5,7 @@ using Northwind.Contracts.Dto.Product;
 using Northwind.Contracts.Dto.Supplier;
 using Northwind.Domain.Models;
 
-namespace Northwind.Web.Mapping
+namespace Northwind.WebAPI.Mapping
 {
     public class MappingProfile : Profile
     {
